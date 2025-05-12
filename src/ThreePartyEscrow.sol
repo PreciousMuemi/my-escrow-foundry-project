@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0; // Using a recent version because, 
+pragma solidity ^0.8.0;
 
 /**
  * @title ThreePartyEscrow
@@ -8,24 +8,24 @@ pragma solidity ^0.8.0; // Using a recent version because,
  * We've got a Sender (who pays), a Receiver (who gets paid), and an Arbitrator (the tie-breaker).
  */
 contract ThreePartyEscrow {
-
-    // Okay, states! These are the different phases our escrow can be in.
+    // States! These are the different phases our escrow can be in.
     enum EscrowState {
-        AwaitingPayment,       // Just chilling, waiting for the money to land. 
-        AwaitingConfirmation,  // Money's here! Now the Receiver needs to say if they got the goods/service. 
-        Dispute,               // Uh oh, beef! Sender and Receiver are arguing. Time for the Arbitrator. 
-        Released,              // Success! Money went to the Receiver. 
-        Refunded,              // Plan B: Money went back to the Sender. 
-        Cancelled              // Aborted mission! Escrow stopped before money moved. 
+        AwaitingPayment, // Just chilling, waiting for the money to land.
+        AwaitingConfirmation, // Money's here! Now the Receiver needs to say if they got the goods/service.
+        Dispute, // Uh oh, beef! Sender and Receiver are arguing. Time for the Arbitrator.
+        Released, // Success! Money went to the Receiver.
+        Refunded, // Plan B: Money went back to the Sender.
+        Cancelled // Aborted mission! Escrow stopped before money moved.
+
     }
 
     // Who's who in this whole setup? Storing their addresses here.
-    address payable public sender;    // The person sending the money. Gotta be payable to send funds out.
-    address payable public receiver;  // The person getting the money. Also payable.
-    address public arbitrator;        // The neutral judge. Doesn't handle the money directly, so no 'payable'.
+    address payable public sender; // The person sending the money. Gotta be payable to send funds out.
+    address payable public receiver; // The person getting the money. Also payable.
+    address public arbitrator; // The neutral judge. Doesn't handle the money directly, so no 'payable'.
 
     // How much money are we holding? Storing the amount here.
-    uint public amount;
+    uint256 public amount;
 
     // Keeping track of the current vibe/state of the escrow. Starts at 'AwaitingPayment'.
     EscrowState public currentState;
@@ -49,15 +49,16 @@ contract ThreePartyEscrow {
     }
 
     // Events! These are like broadcast messages on the blockchain. Super important for tracking stuff.
-    event EscrowCreated(address indexed _sender, address indexed _receiver, address indexed _arbitrator, uint _amount);
-    event FundsDeposited(uint _amount);
+    event EscrowCreated(
+        address indexed _sender, address indexed _receiver, address indexed _arbitrator, uint256 _amount
+    );
+    event FundsDeposited(uint256 _amount);
     event ReceiptConfirmed(address indexed _receiver);
     event DisputeRaised(address indexed _party); // Who started the drama?
-    event FundsReleased(address indexed _receiver, uint _amount);
-    event FundsRefunded(address indexed _sender, uint _amount);
+    event FundsReleased(address indexed _receiver, uint256 _amount);
+    event FundsRefunded(address indexed _sender, uint256 _amount);
     event EscrowCancelled();
     event ArbitrationDecision(address indexed _arbitrator, string _decision); // What did the judge decide?
-
 
     /**
      * @dev Constructor: This runs ONCE when the contract is deployed.
@@ -73,7 +74,6 @@ contract ThreePartyEscrow {
         require(_receiver != msg.sender, "Sender and Receiver can't be the same person. That defeats the point.");
         require(_arbitrator != msg.sender, "Sender and Arbitrator can't be the same. No cheating!");
         require(_arbitrator != _receiver, "Receiver and Arbitrator can't be the same. Gotta be neutral!");
-
 
         sender = payable(msg.sender); // The person deploying = the sender. Simple.
         receiver = _receiver;
@@ -123,7 +123,9 @@ contract ThreePartyEscrow {
      * Can only be called when waiting for confirmation.
      */
     function raiseDispute() external {
-        require(currentState == EscrowState.AwaitingConfirmation, "Can only raise a dispute when waiting for confirmation.");
+        require(
+            currentState == EscrowState.AwaitingConfirmation, "Can only raise a dispute when waiting for confirmation."
+        );
         require(msg.sender == sender || msg.sender == receiver, "Only the sender or receiver can start a dispute.");
 
         currentState = EscrowState.Dispute; // Okay, things are heated. Moving to the 'Dispute' state.
@@ -159,7 +161,7 @@ contract ThreePartyEscrow {
         require(address(this).balance >= amount, "Uh oh, contract balance is low. Something's wrong.");
 
         // Sending the money using the .call method. It's generally safer these days.
-        (bool success, ) = receiver.call{value: amount}("");
+        (bool success,) = receiver.call{value: amount}("");
         require(success, "Sending funds to receiver failed. Big yikes.");
 
         emit FundsReleased(receiver, amount); // Announce the successful release!
@@ -170,11 +172,11 @@ contract ThreePartyEscrow {
      * This is the actual refund logic. Called by arbitrate.
      */
     function _refundFunds() internal {
-         // Double check we actually have the money to send.
+        // Double check we actually have the money to send.
         require(address(this).balance >= amount, "Uh oh, contract balance is low. Something's wrong.");
 
         // Sending the money back to the sender using .call.
-        (bool success, ) = sender.call{value: amount}("");
+        (bool success,) = sender.call{value: amount}("");
         require(success, "Refunding funds to sender failed. That's not good.");
 
         emit FundsRefunded(sender, amount); // Announce the successful refund!
@@ -200,7 +202,7 @@ contract ThreePartyEscrow {
         return currentState; // Just returning the current state. Easy peasy.
     }
 
-     /**
+    /**
      * @dev Who's involved in this escrow? Get the addresses here.
      * @return _sender The address of the sender.
      * @return _receiver The address of the receiver.
@@ -210,11 +212,11 @@ contract ThreePartyEscrow {
         return (sender, receiver, arbitrator); // Returning all the party addresses.
     }
 
-     /**
+    /**
      * @dev How much money is currently locked in this contract?
      * @return The amount in the contract's native currency (e.g., Ether or LSK).
      */
-    function getAmount() external view returns (uint) {
+    function getAmount() external view returns (uint256) {
         return amount; // Returning the amount.
     }
 }

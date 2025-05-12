@@ -31,7 +31,11 @@ contract EscrowTest is Test {
         assertEq(escrow.sender(), sender, "Sender should be deployer");
         assertEq(escrow.receiver(), receiver, "Receiver should be set");
         assertEq(escrow.arbitrator(), arbitrator, "Arbitrator should be set");
-        assertEq(uint8(escrow.currentState()), uint8(ThreePartyEscrow.EscrowState.AwaitingPayment), "Initial state should be AwaitingPayment");
+        assertEq(
+            uint8(escrow.currentState()),
+            uint8(ThreePartyEscrow.EscrowState.AwaitingPayment),
+            "Initial state should be AwaitingPayment"
+        );
         assertEq(escrow.amount(), 0, "Initial amount should be 0");
     }
 
@@ -44,12 +48,16 @@ contract EscrowTest is Test {
 
         // Start pranking as the sender to call the receive function with value
         vm.startPrank(sender);
-        (bool success, ) = address(escrow).call{value: depositAmount}(""); // Call the receive function
+        (bool success,) = address(escrow).call{value: depositAmount}(""); // Call the receive function
         assertTrue(success, "Deposit call should succeed");
         vm.stopPrank();
 
         // Assert state changes
-        assertEq(uint8(escrow.currentState()), uint8(ThreePartyEscrow.EscrowState.AwaitingConfirmation), "State should be AwaitingConfirmation after deposit");
+        assertEq(
+            uint8(escrow.currentState()),
+            uint8(ThreePartyEscrow.EscrowState.AwaitingConfirmation),
+            "State should be AwaitingConfirmation after deposit"
+        );
         assertEq(escrow.amount(), depositAmount, "Amount should be updated");
         assertEq(address(escrow).balance, depositAmount, "Contract balance should match deposit");
     }
@@ -63,19 +71,20 @@ contract EscrowTest is Test {
 
         vm.deal(sender, depositAmount);
         vm.startPrank(sender);
-        (bool success, ) = address(escrow).call{value: depositAmount}("");
+        (bool success,) = address(escrow).call{value: depositAmount}("");
         vm.stopPrank();
 
         // Assert that if the deposit was successful, the amount and balance are correct
         if (success) {
-             assertEq(escrow.amount(), depositAmount, "Fuzzed: Amount should match deposit");
-             assertEq(address(escrow).balance, depositAmount, "Fuzzed: Contract balance should match deposit");
+            assertEq(escrow.amount(), depositAmount, "Fuzzed: Amount should match deposit");
+            assertEq(address(escrow).balance, depositAmount, "Fuzzed: Contract balance should match deposit");
         } else {
-             // If it failed, it should be because the state wasn't AwaitingPayment (e.g., called twice)
-                assertEq(uint8(escrow.currentState()), uint8(ThreePartyEscrow.EscrowState.AwaitingPayment), "Fuzzed: State should be AwaitingPayment if deposit failed");
-            
+            // If it failed, it should be because the state wasn't AwaitingPayment (e.g., called twice)
+            assertEq(
+                uint8(escrow.currentState()),
+                uint8(ThreePartyEscrow.EscrowState.AwaitingPayment),
+                "Fuzzed: State should be AwaitingPayment if deposit failed"
+            );
         }
     }
-
-    
 }
