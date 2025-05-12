@@ -1,66 +1,62 @@
-## Foundry
+# Three-Party Escrow Smart Contract
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+A secure and decentralized escrow system implemented on the Ethereum blockchain using Foundry for development and testing.
 
-Foundry consists of:
+## Overview
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+This smart contract implements a three-party escrow system where:
+- A sender deposits funds
+- A receiver confirms receipt of goods/services
+- An arbitrator resolves potential disputes
 
-## Documentation
+## Features
 
-https://book.getfoundry.sh/
+- Secure fund management
+- Multiple escrow states
+- Dispute resolution system
+- Event logging
+- Access control
 
-## Usage
+## Contract States
 
-### Build
+1. AwaitingPayment
+2. AwaitingConfirmation
+3. Dispute
+4. Released
+5. Refunded
+6. Cancelled
 
-```shell
-$ forge build
+## Getting Started
+
+### Prerequisites
+
+- [Foundry](https://github.com/foundry-rs/foundry)
+- Solidity ^0.8.0
+
+### Installation
+
+```bash
+git clone https://github.com/PreciousMuemi/my-escrow-foundry-project
+cd my-escrow-foundry-project
+forge install
 ```
 
-### Test
+### Testing
 
-```shell
-$ forge test
+```bash
+forge test
 ```
 
-### Format
+## Current Test Coverage
 
-```shell
-$ forge fmt
-```
+- Deployment validation
+- Deposit functionality
+- Fuzz testing for deposits
 
-### Gas Snapshots
+## License
 
-```shell
-$ forge snapshot
-```
+MIT
 
-### Anvil
+## Author
 
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+Precious Muemi

@@ -26,7 +26,7 @@ contract EscrowTest is Test {
 
     // --- Unit Test Example ---
     // Function names starting with 'test_' are unit tests
-    function test_DeploymentSetsCorrectParties() public {
+    function test_DeploymentSetsCorrectParties() public view {
         // Assertions using Foundry's built-in functions (like assertEq)
         assertEq(escrow.sender(), sender, "Sender should be deployer");
         assertEq(escrow.receiver(), receiver, "Receiver should be set");
